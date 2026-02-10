@@ -27,7 +27,8 @@
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
       min-height:100vh;
       color:var(--text);
-      overflow:hidden;
+      overflow-x:hidden;
+      overflow-y:auto;
       background:
         radial-gradient(1200px 800px at 18% 20%, rgba(255,255,255,.70), transparent 60%),
         radial-gradient(950px 720px at 82% 35%, rgba(255,255,255,.52), transparent 55%),
@@ -74,10 +75,13 @@
 
     .wrap{
       position:relative;
-      min-height:100vh;
+      min-height:100svh;
       display:grid;
       place-items:center;
       padding:24px;
+    }
+    @media (max-width: 520px){
+      .wrap{ padding:16px; place-items:start center; }
     }
 
     .card{
@@ -89,7 +93,8 @@
       box-shadow: var(--shadow);
       padding: 26px 22px;
       position:relative;
-      overflow:hidden;
+      overflow-x:hidden;
+      overflow-y:auto;
     }
 
     .topRow{
@@ -116,6 +121,12 @@
 
     .controls{
       display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;
+    }
+    @media (max-width: 520px){
+      .topRow{ flex-direction:column; align-items:stretch; }
+      .controls{ justify-content:center; }
+      .pill{ justify-content:center; }
+      .iconBtn{ padding: 10px 14px; }
     }
     .iconBtn{
       border: 1px solid rgba(17,24,39,.16);
@@ -194,51 +205,105 @@
       text-align:left;
     }
 
-    .gallery{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
+    
+    /* Single-photo carousel (one at a time) */
+    .carousel{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
       gap:10px;
       margin-top: 10px;
     }
-    .ph{
-      border-radius: 16px;
+    .carouselViewport{
+      width:100%;
+      max-width: 520px;
+      height: 320px;
+      border-radius: 18px;
       overflow:hidden;
-      border: 1px solid rgba(255,255,255,.45);
-      background: rgba(255,255,255,.35);
-      aspect-ratio: 1 / 1;
-      display:grid;
-      place-items:center;
-      font-weight: 900;
-      color: rgba(27,27,42,.55);
       position:relative;
-    }
-    .ph img{
-      width:100%; height:100%;
-      object-fit:cover;
-      display:block;
-      transform: scale(1.02);
-    }
-    .ph span{
-      position:absolute;
-      inset:auto 10px 10px 10px;
-      background: rgba(255,255,255,.65);
+      background: rgba(255,255,255,.35);
       border: 1px solid rgba(255,255,255,.45);
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 900;
-      color: rgba(27,27,42,.85);
-      text-align:center;
+      box-shadow: 0 18px 40px rgba(0,0,0,.10);
     }
-
-    .btnRow{
-      margin-top: 18px;
+    .carouselSlide{
+      position:absolute;
+      inset:0;
+      padding: 12px;
+      opacity:0;
+      transform: translateX(18px) scale(.99);
+      transition: opacity .55s ease, transform .55s ease;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .carouselSlide.active{
+      opacity:1;
+      transform: translateX(0) scale(1);
+      z-index:2;
+    }
+    .carouselSlide img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      border-radius: 14px;
+      display:block;
+      transform: scale(1.01);
+    }
+    .carouselCaption{
+      position:absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.85);
+      border: 1px solid rgba(255,255,255,.55);
+      font-weight: 900;
+      font-size: 13px;
+      color: rgba(27,27,42,.9);
+      text-align:center;
+      box-shadow: 0 10px 24px rgba(0,0,0,.08);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .carouselViewport:hover .carouselCaption{
+      opacity:1;
+      transform: translateY(0);
+    }
+    .carouselDots{
+      display:flex;
+      gap:8px;
+      justify-content:center;
+      align-items:center;
+    }
+    .carouselDot{
+      width:10px;
+      height:10px;
+      border-radius: 999px;
+      background: rgba(27,27,42,.14);
+      cursor:pointer;
+      transition: transform .12s ease, filter .12s ease;
+    }
+    .carouselDot.active{
+      background: linear-gradient(135deg, var(--pink), var(--rose));
+      transform: scale(1.25);
+      box-shadow: 0 10px 18px rgba(225,29,72,.18);
+    }
+    @media (max-width: 520px){
+      .carouselViewport{ height: 220px; border-radius: 16px; }
+      .carouselSlide img{ border-radius: 12px; }
+      .carouselCaption{ font-size: 12px; left: 14px; right: 14px; bottom: 14px; }
+    }
+.btnRow{
+      margin-top: 22px;
       display:flex;
       justify-content:center;
-      gap:14px;
+      align-items:center;
+      gap:24px;
       flex-wrap:wrap;
       position:relative;
-      min-height: 58px;
+      min-height: 80px;
     }
     button{
       border:0;
@@ -255,17 +320,24 @@
     .yes{
       background: linear-gradient(135deg, var(--pink), var(--rose));
       color:white;
-      box-shadow: 0 14px 28px rgba(225,29,72,.28);
+      box-shadow: 0 18px 36px rgba(225,29,72,.35);
+      padding: 18px 30px;
+      font-size: 19px;
+      z-index: 2;
     }
     .yes:hover{ filter: brightness(1.04) }
     .no{
       background: rgba(17,24,39,.08);
       border: 1px solid rgba(17,24,39,.18);
       color: rgba(17,24,39,.85);
-      position:absolute;
-      left: 52%;
-      transform: translateX(-50%);
-      box-shadow: 0 12px 22px rgba(0,0,0,.09);
+      padding: 8px 12px;
+      font-size: 13px;
+      box-shadow: 0 8px 14px rgba(0,0,0,.09);
+      position: relative; /* participate in flex layout */
+      transform: none;    /* we'll move it via translate() only */
+      margin-left: 6px;
+      z-index: 1;
+      touch-action: manipulation;
     }
 
     .modalBackdrop{
@@ -316,7 +388,8 @@
       margin: 14px auto 10px;
       width:min(520px, 96%);
       border-radius: 18px;
-      overflow:hidden;
+      overflow-x:hidden;
+      overflow-y:auto;
       border: 1px solid rgba(255,255,255,.45);
       box-shadow: 0 20px 48px rgba(0,0,0,.18);
       background: rgba(255,255,255,.35);
@@ -331,22 +404,185 @@
       text-align:center;
     }
     code{background: rgba(255,255,255,.55); padding:2px 6px; border-radius:8px}
+  
+    /* NO click overlay video (plays once like a gif) */
+    #noGifOverlay{
+      pointer-events: none;
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      width: min(360px, 86vw);
+      aspect-ratio: 16 / 9;
+      border-radius: 18px;
+      overflow: hidden;
+      background: rgba(255,255,255,.60);
+      border: 1px solid rgba(255,255,255,.50);
+      box-shadow: 0 22px 60px rgba(0,0,0,.22);
+      z-index: 60;
+      backdrop-filter: blur(10px);
+      transform: translateY(12px) scale(.98);
+      opacity: 0;
+      transition: opacity .22s ease, transform .22s ease;
+    }
+    #noGifOverlay.show{
+      pointer-events: auto;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    #noGifOverlay video{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display:block;
+    }
+    #noGifClose{
+      position:absolute;
+      top:10px;
+      right:10px;
+      border: 1px solid rgba(17,24,39,.16);
+      background: rgba(255,255,255,.75);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 1000;
+      cursor:pointer;
+      z-index: 2;
+    }
+    #noGifLabel{
+      position:absolute;
+      left:12px;
+      bottom:12px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.85);
+      border: 1px solid rgba(255,255,255,.60);
+      font-weight: 1000;
+      font-size: 13px;
+      color: rgba(27,27,42,.92);
+      z-index: 2;
+      max-width: calc(100% - 24px);
+      text-align:left;
+    }
+    @media (max-width: 520px){
+      #noGifOverlay{
+      pointer-events: none;
+        right: 12px;
+        bottom: 12px;
+        width: min(340px, 92vw);
+        border-radius: 16px;
+      }
+      #noGifLabel{ font-size: 12.5px; }
+    }
+
+/* Mobile alignment polish */
+    @media (max-width: 520px){
+      .wrap{ padding:14px; }
+      .card{ padding:16px 12px; border-radius:18px; }
+      h1{ font-size: 24px; }
+      p{ font-size: 14px; }
+      .bigQuestion{ font-size: 20px; line-height:1.15; }
+      .grid{ gap:12px; margin-top:14px; }
+      .panel{ padding:14px 12px; border-radius:16px; }
+      .controls{ gap:8px; justify-content:center; }
+      .iconBtn{ padding:10px 14px; }
+      .btnRow{ min-height: 76px; gap:18px; margin-top:18px; }
+      .yes{ padding:16px 26px; font-size:18px; }
+      .no{ font-size:12px; padding:8px 10px; }
+      .media{ width: 100%; }
+    }
+
+  
+    /* Intro gate overlay */
+    #introGate{
+      position:fixed;
+      inset:0;
+      display:grid;
+      place-items:center;
+      padding:18px;
+      z-index: 70;
+      background: radial-gradient(900px 600px at 20% 20%, rgba(255,255,255,.75), rgba(255,255,255,.35) 55%, rgba(10,10,20,.22));
+      backdrop-filter: blur(10px);
+    }
+    .introCard{
+      width:min(520px, 92vw);
+      border-radius: 24px;
+      background: rgba(255,255,255,.72);
+      border: 1px solid rgba(255,255,255,.50);
+      box-shadow: 0 28px 90px rgba(0,0,0,.22);
+      padding: 18px 16px;
+      text-align:center;
+    }
+    .introTitle{
+      font-weight: 1000;
+      font-size: 22px;
+      margin: 6px 0 10px;
+      color: rgba(27,27,42,.92);
+    }
+    .introText{
+      color: rgba(27,27,42,.78);
+      font-weight: 800;
+      line-height: 1.45;
+      margin: 0 0 14px;
+      font-size: 15px;
+    }
+    .introBtn{
+      border:0;
+      border-radius: 999px;
+      padding: 14px 22px;
+      font-weight: 1000;
+      cursor:pointer;
+      background: linear-gradient(135deg, var(--pink), var(--rose));
+      color: white;
+      box-shadow: 0 18px 40px rgba(225,29,72,.32);
+      transition: transform .12s ease, filter .12s ease;
+    }
+    .introBtn:hover{ filter: brightness(1.04); }
+    .introBtn:active{ transform: translateY(1px) scale(.99); }
+    .introHint{
+      margin-top: 10px;
+      font-size: 12px;
+      color: rgba(27,27,42,.62);
+      font-weight: 800;
+    }
+
   </style>
 </head>
 
 <body>
   <canvas id="confetti"></canvas>
 
+  <div id="noGifOverlay" style="display:none; pointer-events:none;">
+    <button id="noGifClose" aria-label="Close">✕</button>
+    <div id="noGifLabel">😂 Nice try!</div>
+    <video id="noGifVid" playsinline muted preload="metadata"></video>
+  </div>
+
+
+  <!-- Sweet intro gate (required for reliable music start on mobile) -->
+  <div id="introGate" role="dialog" aria-modal="true" aria-label="Welcome" >
+    <div class="introCard">
+      <div class="introTitle">Hey love 💖</div>
+      <div class="introText">
+        I made this little page for you.<br/>
+        Take a deep breath… and press the button. 🎶
+      </div>
+      <button id="introStart" class="introBtn">Start the magic ✨</button>
+      <div class="introHint">Music starts after you tap (phone rules 😌)</div>
+    </div>
+  </div>
+
+
   <div class="modalBackdrop" id="modalBackdrop">
     <div class="modal">
       <button class="close" id="closeModal">✕</button>
       <h3>💌 A little love letter</h3>
       <p id="letterText"></p>
-      <div class="hint">You can edit this text in <code>CONFIG.loveLetter</code> ✨</div>
+      
     </div>
   </div>
 
-  <div class="wrap">
+    <audio id="bgAudio" preload="auto" loop playsinline></audio>
+
+  <div class="wrap" id="mainContent">
     <div class="card" id="card">
 
       <div class="topRow">
@@ -364,6 +600,10 @@
         <span class="typeLine" id="typeLine">I have something cute to ask you…</span>
       </h1>
       <p id="sub">If you smile right now, my mission is already successful 😌💗</p>
+      <p class="bigLove" style="margin-top:14px;">
+        Will you be my Valentine <span style="color:#e11d48;">for the rest of my life</span>? 💍💖
+      </p>
+
 
       <div id="ask">
         <div class="grid">
@@ -375,9 +615,12 @@
           <div class="panel">
             <h2>📸 Us (mini gallery)</h2>
             <p class="small" style="text-align:left;margin:0 0 8px;">
-              Add your photos by placing files next to <code>index.html</code> and updating <code>CONFIG.photos</code>.
+              Our little moments 💞
             </p>
-            <div class="gallery" id="gallery"></div>
+            <div class="carousel" id="carousel" aria-label="Photo carousel">
+              <div class="carouselViewport" id="carouselViewport"></div>
+              <div class="carouselDots" id="carouselDots"></div>
+            </div>
           </div>
         </div>
 
@@ -386,9 +629,7 @@
           <button class="no" id="noBtn" aria-label="No">No 😶</button>
         </div>
 
-        <div class="hint">
-          Quick edit: open <code>index.html</code> → update <code>CONFIG</code> (name, message, photos, letter).
-        </div>
+        
       </div>
 
       <div id="yay" class="success" aria-live="polite">
@@ -397,7 +638,7 @@
         <p id="yaySub">I’m planning a date you’ll never forget 🌙✨</p>
 
         <div class="media">
-          <img id="successImg" src="https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif" alt="Happy dance"/>
+          <video id="successVid" playsinline controls preload="metadata" style="background:rgba(255,255,255,.25)"></video>
         </div>
 
         <div class="fromLine">— love, <span id="from">YourName</span> ❤️</div>
@@ -408,7 +649,7 @@
 
   <script>
     const CONFIG = {
-      herName: "Shivani",
+      herName: "Vaishali",
       yourName: "Smit",
       typedLines: [
         "I have something cute to ask you…",
@@ -418,19 +659,29 @@
       subText: "If you smile right now, my mission is already successful 😌💗",
       reasons: [
         "Your smile fixes my bad days instantly.",
-        "You’re my favorite person to talk to—always.",
+        "You make my heartbeat skip soemtimes.",
         "You make simple moments feel special.",
         "You’re kind, strong, and ridiculously adorable.",
         "You feel like home to me."
       ],
-      photos: [],
-      successImage: null,
+      photos: ["assest/Snapchat-471822461.jpg","assest/500072700782_180496.jpg","assest/500078700516_59864.jpg","assest/500079900176_174194.jpg","assest/1770697408756.JPG","assest/1770698173757.jpg"],
+      photoMessages: [
+        "My favorite memory ❤️",
+        "You + me = magic ✨",
+        "Forever looks good on us 💍",
+        "Smiles that I want forever 😊",
+        "Every moment with you feels special 💖",
+        "Us… always and forever 🫶"
+      ],
+      successImage: "assest/1770697408756.JPG",
+      successVideo: "assest/vid-20260210114633-0xm3t1bs_NzxeNEWV.mp4",
+      noClickVideo: "assest/VID-20230722-WA0000.mp4",
       yaySubText: "I’m planning a date you’ll never forget 🌙✨",
       loveLetter:
         "Hey love,\n\nI just wanted you to know… you’re my favorite part of every day. " +
         "Thank you for choosing me, understanding me, and making life sweeter.\n\n" +
         "Will you be my Valentine and keep being my forever person? 💘",
-      musicFile: null
+      musicFile: "assest/Main Rang Sharbaton Ka Phata Poster Nikhla Hero 320 Kbps.mp3"
     };
 
     const $ = (id) => document.getElementById(id);
@@ -453,27 +704,77 @@
       reasonsEl.appendChild(div);
     }
 
-    const galleryEl = $("gallery");
-    galleryEl.innerHTML = "";
-    const photos = Array.isArray(CONFIG.photos) ? CONFIG.photos.slice(0,3) : [];
-    for (let i=0;i<3;i++){
-      const ph = document.createElement("div");
-      ph.className = "ph";
-      if (photos[i]){
+    const galleryViewport = $("carouselViewport");
+    const carouselDots = $("carouselDots");
+
+    const photos = Array.isArray(CONFIG.photos) ? CONFIG.photos.slice() : [];
+    const captions = Array.isArray(CONFIG.photoMessages) ? CONFIG.photoMessages.slice() : [];
+
+    let slides = [];
+    if (galleryViewport && carouselDots) {
+      galleryViewport.innerHTML = "";
+      carouselDots.innerHTML = "";
+      slides = [];
+
+      for (let i = 0; i < photos.length; i++) {
+        const slide = document.createElement("div");
+        slide.className = "carouselSlide";
+
         const img = document.createElement("img");
-        img.src = photos[i];
-        img.alt = "Us photo " + (i+1);
-        ph.appendChild(img);
-        const cap = document.createElement("span");
-        cap.textContent = "us 💕";
-        ph.appendChild(cap);
-      } else {
-        ph.textContent = "💞";
-        const cap = document.createElement("span");
-        cap.textContent = "add photo " + (i+1);
-        ph.appendChild(cap);
+        img.src = encodeURI(photos[i]);
+        img.alt = "Us photo " + (i + 1);
+        slide.appendChild(img);
+
+        const cap = document.createElement("div");
+        cap.className = "carouselCaption";
+        cap.textContent = captions[i] || "Our moment 💗";
+        slide.appendChild(cap);
+
+        galleryViewport.appendChild(slide);
+        slides.push(slide);
+
+        const dot = document.createElement("div");
+        dot.className = "carouselDot";
+        dot.addEventListener("click", () => {
+          setActive(i);
+          resetAutoplay();
+        });
+        carouselDots.appendChild(dot);
       }
-      galleryEl.appendChild(ph);
+    }
+
+    let active = 0;
+    function setActive(i) {
+      if (!slides.length) return;
+      slides.forEach((s, idx) => s.classList.toggle("active", idx === i));
+      const dots = carouselDots.querySelectorAll(".carouselDot");
+      dots.forEach((d, idx) => d.classList.toggle("active", idx === i));
+      active = i;
+    }
+    setActive(0);
+
+    let timer = null;
+    function startAutoplay() {
+      if (!slides.length) return;
+      timer = setInterval(() => {
+        active = (active + 1) % slides.length;
+        setActive(active);
+      }, 5000);
+    }
+    function resetAutoplay() {
+      if (timer) clearInterval(timer);
+      startAutoplay();
+
+    // autoplay removed (intro gate handles start)
+    }
+    startAutoplay();
+
+    // autoplay removed (intro gate handles start)
+
+    // Pause autoplay while hovering (desktop)
+    if (galleryViewport) {
+      galleryViewport.addEventListener("mouseenter", () => { if (timer) clearInterval(timer); });
+      galleryViewport.addEventListener("mouseleave", () => resetAutoplay());
     }
 
     const typeEl = $("typeLine");
@@ -502,8 +803,9 @@
     }
     setTimeout(typeTick, 700);
 
-    if (CONFIG.successImage){
-      $("successImg").src = CONFIG.successImage;
+    const successVid = $("successVid");
+    if (successVid && CONFIG.successVideo){
+      successVid.src = encodeURI(CONFIG.successVideo);
     }
 
     const noBtn = $("noBtn");
@@ -512,35 +814,70 @@
     let noCount = 0;
 
     function moveNoButton(){
-      const padding = 10;
+      // Move the NO button using translate so it NEVER overlaps the YES button in layout.
+      // We constrain movement to the right side of the button row.
       const rowRect = btnRow.getBoundingClientRect();
       const btnRect = noBtn.getBoundingClientRect();
-      const maxX = rowRect.width - btnRect.width - padding;
-      const maxY = 48;
-      const x = padding + Math.random() * Math.max(0, maxX - padding);
-      const y = Math.random() * maxY;
-      noBtn.style.left = x + "px";
-      noBtn.style.top = y + "px";
+
+      // Right-side playground (in px)
+      const rightZoneWidth = Math.max(90, rowRect.width * 0.35);
+      const maxX = Math.max(0, rightZoneWidth - btnRect.width);
+      const maxY = 34;
+
+      const x = Math.floor(Math.random() * (maxX + 1));
+      const y = Math.floor((Math.random() * 2 - 1) * maxY);
+
+      noBtn.style.transform = `translate(${x}px, ${y}px)`;
     }
 
     btnRow.style.position = "relative";
-    noBtn.style.position = "absolute";
-    noBtn.style.top = "0px";
-    noBtn.style.left = "52%";
+    // noBtn.style.position = "absolute"; (removed)
+    // noBtn.style.top = "0px"; (removed)
+    // noBtn.style.left = "52%"; (removed)
 
-    noBtn.addEventListener("mouseenter", () => { noCount++; moveNoButton(); updateNoText(); });
-    noBtn.addEventListener("touchstart", (e) => { noCount++; moveNoButton(); updateNoText(); e.preventDefault(); }, {passive:false});
-    noBtn.addEventListener("click", (e) => { noCount++; moveNoButton(); updateNoText(); e.preventDefault(); });
+    // hover disabled on purpose 😄
+    noBtn.addEventListener("touchstart", (e) => { noCount++; showNoGifOnce(); moveNoButton(); updateNoText(); e.preventDefault(); }, {passive:false});
+    // iOS Safari sometimes ignores touchstart handlers if the finger moves slightly; touchend as backup
+    noBtn.addEventListener("touchend", (e) => { noCount++; showNoGifOnce(); moveNoButton(); updateNoText(); e.preventDefault(); }, {passive:false});
+    noBtn.addEventListener("click", (e) => { noCount++; showNoGifOnce(); moveNoButton(); updateNoText(); e.preventDefault(); });
+
+    function showNoGifOnce(){
+      const overlay = document.getElementById("noGifOverlay");
+      const v = document.getElementById("noGifVid");
+      if (!overlay || !v || !CONFIG.noClickVideo) return;
+      overlay.style.display = "block";
+      overlay.style.pointerEvents = "auto";
+      requestAnimationFrame(() => overlay.classList.add("show"));
+      const closeBtn = document.getElementById("noGifClose");
+      if (closeBtn){ closeBtn.onclick = () => { overlay.classList.remove("show"); setTimeout(()=> { overlay.style.display="none"; overlay.style.pointerEvents="none"; }, 180); }; }
+      v.src = encodeURI(CONFIG.noClickVideo);
+      v.loop = false;
+      v.muted = true;
+      v.currentTime = 0;
+      const p = v.play();
+      if (p && p.catch) p.catch(()=>{});
+      v.onended = () => { overlay.classList.remove("show"); setTimeout(()=> { overlay.style.display="none"; overlay.style.pointerEvents="none"; }, 180); };
+      setTimeout(() => { overlay.classList.remove("show"); setTimeout(()=> { overlay.style.display="none"; overlay.style.pointerEvents="none"; }, 180); }, 5200);
+    }
 
     function updateNoText(){
       const lines = [
-        "No 😶",
-        "Are you sure? 😳",
-        "Pls? 🥺",
-        "Don’t break my heart 😭",
-        "I made a whole website 😤",
-        "Okay… you win 😅",
-        "Still no? Impossible 😈"
+        "No 🙄",
+        "Nice try 😏",
+        "Wrong button 😌",
+        "This one doesn’t work 😜",
+        "Try YES 👉💖",
+        "Are you joking? 😆",
+        "This is illegal 😂",
+        "NO is on vacation 🏖️",
+        "Nice finger, wrong choice 😝",
+        "Universe says YES 🌌",
+        "Fate won’t allow this 😈",
+        "Still pressing NO? 😳",
+        "Plot twist: YES wins 💥",
+        "Heart says YES ❤️",
+        "Bhagwan is daroo beti 😌",
+        "Okay enough, click YES 😌💖"
       ];
       noBtn.textContent = lines[Math.min(noCount, lines.length-1)];
     }
@@ -548,6 +885,14 @@
     yesBtn.addEventListener("click", () => {
       $("ask").style.display = "none";
       $("yay").style.display = "block";
+
+      const v = $("successVid");
+      if (v && CONFIG.successVideo){
+        v.loop = true;
+        v.muted = false; // user gesture allows sound
+        v.play().catch(()=>{});
+      }
+
       launchConfetti(320);
       burstHearts(24);
       sparklePulse();
@@ -569,70 +914,110 @@
       setTimeout(() => typeEl.textContent = prev, 1800);
     });
 
-    let audio = null;
+    
+    function autoplayBgMusic(){
+      const el = document.getElementById("bgAudio");
+      if (!el || !CONFIG.musicFile) return;
+      el.src = encodeURI(CONFIG.musicFile);
+      el.volume = 0.65;
+      el.muted = true; // allow autoplay
+      el.play().catch(()=>{});
+
+      const unlock = () => {
+        el.muted = false;
+        el.play().catch(()=>{});
+        window.removeEventListener("pointerdown", unlock);
+        window.removeEventListener("touchstart", unlock);
+      };
+      window.addEventListener("pointerdown", unlock, { once:true });
+      window.addEventListener("touchstart", unlock, { once:true, passive:true });
+    }
+
     let playing = false;
+    const bg = document.getElementById("bgAudio");
 
-    function ensureAudio(){
-      if (audio) return;
-      if (CONFIG.musicFile){
-        audio = new Audio(CONFIG.musicFile);
-        audio.loop = true;
-        audio.volume = 0.7;
-      } else {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        const ctxA = new AC();
-        const osc1 = ctxA.createOscillator();
-        const osc2 = ctxA.createOscillator();
-        const gain = ctxA.createGain();
-        const filter = ctxA.createBiquadFilter();
-
-        osc1.type = "sine";
-        osc2.type = "triangle";
-        osc1.frequency.value = 220;
-        osc2.frequency.value = 277.18;
-        gain.gain.value = 0.0001;
-
-        filter.type = "lowpass";
-        filter.frequency.value = 900;
-
-        osc1.connect(filter);
-        osc2.connect(filter);
-        filter.connect(gain);
-        gain.connect(ctxA.destination);
-
-        osc1.start();
-        osc2.start();
-
-        audio = { ctxA, gain, isSynth:true };
-      }
+    function setMusicUI(){
+      const b = $("musicBtn");
+      if (b) b.textContent = playing ? "⏸️ Music" : "🎵 Music";
     }
 
-    function play(){
-      ensureAudio();
-      if (audio.isSynth){
-        audio.ctxA.resume();
-        audio.gain.gain.setTargetAtTime(0.03, audio.ctxA.currentTime, 0.2);
-      } else {
-        audio.play();
-      }
-      playing = true;
-      $("musicBtn").textContent = "⏸️ Music";
+    function ensureBgSrc(){
+      if (!bg || !CONFIG.musicFile) return;
+      if (!bg.src) bg.src = encodeURI(CONFIG.musicFile);
+      bg.loop = true;
+      bg.volume = 0.65;
     }
-    function pause(){
-      if (!audio) return;
-      if (audio.isSynth){
-        audio.gain.gain.setTargetAtTime(0.0001, audio.ctxA.currentTime, 0.15);
-      } else {
-        audio.pause();
-      }
+
+    function startMusic(){
+      ensureBgSrc();
+      if (!bg) return;
+      // Resume from where it stopped (currentTime preserved by default)
+      return bg.play().then(() => {
+        playing = true;
+        setMusicUI();
+      }).catch(() => {
+        playing = false;
+        setMusicUI();
+      });
+    }
+
+    function pauseMusic(){
+      if (!bg) return;
+      bg.pause(); // keeps currentTime for resume
       playing = false;
-      $("musicBtn").textContent = "🎵 Music";
+      setMusicUI();
     }
 
-    $("musicBtn").addEventListener("click", () => {
-      if (!playing) play(); else pause();
-      burstHearts(6);
-    });
+    // Music button toggle
+    const musicBtn = $("musicBtn");
+    if (musicBtn){
+      musicBtn.addEventListener("click", () => {
+        if (!playing) startMusic(); else pauseMusic();
+        burstHearts(6);
+      });
+    }
+
+    // Keep UI in sync if browser/OS pauses it
+    if (bg){
+      bg.addEventListener("play", () => { playing = true; setMusicUI(); });
+      bg.addEventListener("pause", () => { playing = false; setMusicUI(); });
+    }
+
+    // Intro popup gate (required for reliable autoplay on mobile)
+    const introGate = document.getElementById("introGate");
+    const introStart = document.getElementById("introStart");
+    const mainContent = document.getElementById("mainContent");
+
+    function openIntro(){
+      if (introGate){
+        introGate.style.display = "grid";
+        introGate.style.pointerEvents = "auto";
+      }
+      if (mainContent) mainContent.style.filter = "blur(10px)";
+    }
+
+    function closeIntro(){
+      if (introGate){
+        introGate.style.display = "none";
+        introGate.style.pointerEvents = "none";
+      }
+      if (mainContent) mainContent.style.filter = "none";
+    }
+
+    // Always show gate on load
+    openIntro();
+
+    if (introStart){
+      introStart.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeIntro();
+        startMusic(); // user gesture makes it start reliably
+        burstHearts(10);
+      });
+    }
+
+    setMusicUI();
 
     function spawnHeart(){
       const h = document.createElement("div");
