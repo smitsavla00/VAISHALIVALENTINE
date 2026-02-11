@@ -553,7 +553,7 @@
   <div id="noGifOverlay" style="display:none; pointer-events:none;">
     <button id="noGifClose" aria-label="Close">✕</button>
     <div id="noGifLabel">😂 Bhagwan se daroo beti</div>
-    <video id="noGifVid" playsinline muted preload="metadata"></video>
+    <video id="noGifVid" playsinline muted preload="auto"></video>
   </div>
 
 
@@ -638,7 +638,7 @@
         <p id="yaySub">I’m planning rest of life with you which you’ll never forget 🌙✨</p>
 
         <div class="media">
-          <video id="successVid" playsinline controls preload="metadata" style="background:rgba(255,255,255,.25)"></video>
+          <video id="successVid" playsinline controls preload="auto" style="background:rgba(255,255,255,.25)"></video>
         </div>
 
         <div class="fromLine">— love, <span id="from">YourName</span> ❤️</div>
@@ -845,19 +845,76 @@
       const overlay = document.getElementById("noGifOverlay");
       const v = document.getElementById("noGifVid");
       if (!overlay || !v || !CONFIG.noClickVideo) return;
+
+      // Root cause fixed:
+      // 1) We were calling play() before the video was ready (slow load / iOS) -> blank.
+      // 2) A hardcoded 5200ms timeout could hide the overlay before the clip actually appears.
+      // Fix: load() + wait for data, and hide based on duration/onended.
+
+      // Clear any previous timers/handlers (important when user taps NO multiple times)
+      if (window.__noGifHideTimer) clearTimeout(window.__noGifHideTimer);
+      v.onended = null;
+      v.onloadeddata = null;
+      v.onloadedmetadata = null;
+
+      // Show overlay
       overlay.style.display = "block";
       overlay.style.pointerEvents = "auto";
       requestAnimationFrame(() => overlay.classList.add("show"));
+
       const closeBtn = document.getElementById("noGifClose");
-      if (closeBtn){ closeBtn.onclick = () => { overlay.classList.remove("show"); setTimeout(()=> { overlay.style.display="none"; overlay.style.pointerEvents="none"; }, 180); }; }
-      v.src = encodeURI(CONFIG.noClickVideo);
+      if (closeBtn){
+        closeBtn.onclick = () => {
+          overlay.classList.remove("show");
+          setTimeout(() => {
+            overlay.style.display = "none";
+            overlay.style.pointerEvents = "none";
+          }, 180);
+        };
+      }
+
+      // Reset & load video deterministically
+      try { v.pause(); } catch(e){}
       v.loop = false;
       v.muted = true;
-      v.currentTime = 0;
-      const p = v.play();
-      if (p && p.catch) p.catch(()=>{});
-      v.onended = () => { overlay.classList.remove("show"); setTimeout(()=> { overlay.style.display="none"; overlay.style.pointerEvents="none"; }, 180); };
-      setTimeout(() => { overlay.classList.remove("show"); setTimeout(()=> { overlay.style.display="none"; overlay.style.pointerEvents="none"; }, 180); }, 5200);
+
+      const targetSrc = encodeURI(CONFIG.noClickVideo);
+      if (v.src !== targetSrc) v.src = targetSrc;
+
+      // Force reload so first frame shows reliably
+      v.load();
+
+      const startPlayback = () => {
+        try { v.currentTime = 0; } catch(e){}
+        const p = v.play();
+        if (p && p.catch) p.catch(()=>{});
+      };
+
+      // Once enough data is available, play
+      v.onloadeddata = () => startPlayback();
+
+      // Hide when ended (preferred)
+      v.onended = () => {
+        overlay.classList.remove("show");
+        setTimeout(() => {
+          overlay.style.display = "none";
+          overlay.style.pointerEvents = "none";
+        }, 180);
+      };
+
+      // Safety hide based on actual duration (no more hardcoded 5.2s)
+      // Keep it visible at least 2.2s, and at most 12s.
+      v.onloadedmetadata = () => {
+        const durMs = isFinite(v.duration) ? (v.duration * 1000) : 6500;
+        const hideAfter = Math.max(2200, Math.min(12000, durMs + 250));
+        window.__noGifHideTimer = setTimeout(() => {
+          overlay.classList.remove("show");
+          setTimeout(() => {
+            overlay.style.display = "none";
+            overlay.style.pointerEvents = "none";
+          }, 4000);
+        }, hideAfter);
+      };
     }
 
     function updateNoText(){
